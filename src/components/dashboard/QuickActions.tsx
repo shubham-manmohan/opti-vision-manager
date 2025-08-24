@@ -12,14 +12,14 @@ const QuickActions = () => {
       label: 'New Customer',
       icon: UserPlus,
       color: 'primary',
-      path: '/customers/new'
+      path: '/customers'
     },
     {
       id: 'new-order',
       label: 'New Order',
       icon: Plus,
       color: 'accent',
-      path: '/orders/new'
+      path: '/orders'
     },
     {
       id: 'search-customer',
@@ -33,7 +33,7 @@ const QuickActions = () => {
       label: 'Pending Orders',
       icon: ClipboardList,
       color: 'success',
-      path: '/orders?status=pending'
+      path: '/orders'
     }
   ];
 
