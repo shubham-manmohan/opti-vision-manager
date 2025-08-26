@@ -6,7 +6,11 @@ interface MobileLayoutProps {
   showHeader?: boolean;
 }
 
-const MobileLayout = ({ children, title, showHeader = true }: MobileLayoutProps) => {
+const MobileLayout = ({
+  children,
+  title,
+  showHeader = true,
+}: MobileLayoutProps) => {
   return (
     <div className="mobile-container">
       {showHeader && (
@@ -23,11 +27,9 @@ const MobileLayout = ({ children, title, showHeader = true }: MobileLayoutProps)
           </div>
         </header>
       )}
-      
-      <main className="px-4 py-4 space-y-6">
-        {children}
-      </main>
-      
+
+      <main className="px-4 py-4 space-y-6">{children}</main>
+
       <FooterNavigation />
     </div>
   );

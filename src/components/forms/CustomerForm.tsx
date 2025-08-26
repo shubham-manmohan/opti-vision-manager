@@ -1,13 +1,20 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Customer, useAppStore } from '@/lib/store';
-import { X, Save, UserPlus } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAppStore } from "@/lib/store";
+import { X, Save, UserPlus } from "lucide-react";
+import { Customer } from "@/types/types";
 
 interface CustomerFormProps {
   customer?: Customer;
@@ -15,50 +22,54 @@ interface CustomerFormProps {
   onSave: () => void;
 }
 
-export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) => {
+export const CustomerForm = ({
+  customer,
+  onClose,
+  onSave,
+}: CustomerFormProps) => {
   const { toast } = useToast();
   const { addCustomer, updateCustomer } = useAppStore();
-  
+
   const [formData, setFormData] = useState({
-    name: customer?.name || '',
-    phone: customer?.phone || '',
-    email: customer?.email || '',
-    location: customer?.location || '',
-    status: customer?.status || 'active' as const,
+    name: customer?.name || "",
+    phone: customer?.phone || "",
+    email: customer?.email || "",
+    location: customer?.location || "",
+    status: customer?.status || ("active" as const),
     prescription: {
-      leftEye: customer?.prescription?.leftEye || '',
-      rightEye: customer?.prescription?.rightEye || '',
-      pd: customer?.prescription?.pd || '',
-      notes: customer?.prescription?.notes || ''
-    }
+      leftEye: customer?.prescription?.leftEye || "",
+      rightEye: customer?.prescription?.rightEye || "",
+      pd: customer?.prescription?.pd || "",
+      notes: customer?.prescription?.notes || "",
+    },
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = "Invalid email format";
     }
-    if (!formData.location.trim()) newErrors.location = 'Location is required';
-    
+    if (!formData.location.trim()) newErrors.location = "Location is required";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     try {
       const customerData = {
         ...formData,
         lastVisit: customer?.lastVisit || new Date().toISOString(),
-        totalOrders: customer?.totalOrders || 0
+        totalOrders: customer?.totalOrders || 0,
       };
 
       if (customer) {
@@ -74,7 +85,7 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
           description: "New customer has been added successfully.",
         });
       }
-      
+
       onSave();
     } catch (error) {
       toast({
@@ -86,16 +97,16 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const handlePrescriptionChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      prescription: { ...prev.prescription, [field]: value }
+      prescription: { ...prev.prescription, [field]: value },
     }));
   };
 
@@ -105,7 +116,7 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground">
-              {customer ? 'Edit Customer' : 'Add New Customer'}
+              {customer ? "Edit Customer" : "Add New Customer"}
             </h2>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
@@ -115,19 +126,23 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Basic Information</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground">
+                Basic Information
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name *</Label>
                   <Input
                     id="name"
                     value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder="Enter full name"
-                    className={errors.name ? 'border-destructive' : ''}
+                    className={errors.name ? "border-destructive" : ""}
                   />
-                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                  {errors.name && (
+                    <p className="text-sm text-destructive">{errors.name}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -135,11 +150,13 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                   <Input
                     id="phone"
                     value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="+91 98765 43210"
-                    className={errors.phone ? 'border-destructive' : ''}
+                    className={errors.phone ? "border-destructive" : ""}
                   />
-                  {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
+                  {errors.phone && (
+                    <p className="text-sm text-destructive">{errors.phone}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -148,11 +165,13 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="customer@email.com"
-                    className={errors.email ? 'border-destructive' : ''}
+                    className={errors.email ? "border-destructive" : ""}
                   />
-                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email}</p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -160,19 +179,25 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                   <Input
                     id="location"
                     value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                     placeholder="City, Area"
-                    className={errors.location ? 'border-destructive' : ''}
+                    className={errors.location ? "border-destructive" : ""}
                   />
-                  {errors.location && <p className="text-sm text-destructive">{errors.location}</p>}
+                  {errors.location && (
+                    <p className="text-sm text-destructive">
+                      {errors.location}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
                     value={formData.status}
-                    onValueChange={(value: 'active' | 'inactive' | 'vip') => 
-                      handleInputChange('status', value)
+                    onValueChange={(value: "active" | "inactive" | "vip") =>
+                      handleInputChange("status", value)
                     }
                   >
                     <SelectTrigger>
@@ -190,15 +215,19 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
 
             {/* Prescription Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground">Prescription Details</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground">
+                Prescription Details
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="leftEye">Left Eye (SPH CYL AXIS)</Label>
                   <Input
                     id="leftEye"
                     value={formData.prescription.leftEye}
-                    onChange={(e) => handlePrescriptionChange('leftEye', e.target.value)}
+                    onChange={(e) =>
+                      handlePrescriptionChange("leftEye", e.target.value)
+                    }
                     placeholder="-2.50 -0.75 x 90"
                   />
                 </div>
@@ -208,7 +237,9 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                   <Input
                     id="rightEye"
                     value={formData.prescription.rightEye}
-                    onChange={(e) => handlePrescriptionChange('rightEye', e.target.value)}
+                    onChange={(e) =>
+                      handlePrescriptionChange("rightEye", e.target.value)
+                    }
                     placeholder="-2.25 -0.50 x 85"
                   />
                 </div>
@@ -218,7 +249,9 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                   <Input
                     id="pd"
                     value={formData.prescription.pd}
-                    onChange={(e) => handlePrescriptionChange('pd', e.target.value)}
+                    onChange={(e) =>
+                      handlePrescriptionChange("pd", e.target.value)
+                    }
                     placeholder="62mm"
                   />
                 </div>
@@ -229,7 +262,9 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
                 <Textarea
                   id="notes"
                   value={formData.prescription.notes}
-                  onChange={(e) => handlePrescriptionChange('notes', e.target.value)}
+                  onChange={(e) =>
+                    handlePrescriptionChange("notes", e.target.value)
+                  }
                   placeholder="Additional notes about prescription preferences, lens coatings, etc."
                   rows={3}
                 />
@@ -260,4 +295,4 @@ export const CustomerForm = ({ customer, onClose, onSave }: CustomerFormProps) =
       </Card>
     </div>
   );
-}; 
+};

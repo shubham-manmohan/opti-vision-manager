@@ -1,25 +1,24 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Download, 
-  FileText, 
-  Users, 
-
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Download,
+  FileText,
+  Users,
   ClipboardList,
   Database,
   CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import { useAppStore } from '@/lib/store';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  exportToCSV, 
-  formatCustomerForExport, 
-  formatOrderForExport, 
-  exportDashboardData 
-} from '@/lib/exportUtils';
+  AlertCircle,
+} from "lucide-react";
+import { useAppStore } from "@/lib/store";
+import { useToast } from "@/hooks/use-toast";
+import {
+  exportToCSV,
+  formatCustomerForExport,
+  formatOrderForExport,
+  exportDashboardData,
+} from "@/lib/exportUtils";
 
 const ExportSection = () => {
   const { customers, orders } = useAppStore();
@@ -29,7 +28,10 @@ const ExportSection = () => {
   const handleExportCustomers = () => {
     try {
       const formattedData = formatCustomerForExport(customers);
-      exportToCSV(formattedData, `Opti-Vision-Customers-${new Date().toISOString().split('T')[0]}`);
+      exportToCSV(
+        formattedData,
+        `Opti-Vision-Customers-${new Date().toISOString().split("T")[0]}`
+      );
       toast({
         title: "Export Successful",
         description: `${customers.length} customers exported to CSV`,
@@ -46,7 +48,10 @@ const ExportSection = () => {
   const handleExportOrders = () => {
     try {
       const formattedData = formatOrderForExport(orders);
-      exportToCSV(formattedData, `Opti-Vision-Orders-${new Date().toISOString().split('T')[0]}`);
+      exportToCSV(
+        formattedData,
+        `Opti-Vision-Orders-${new Date().toISOString().split("T")[0]}`
+      );
       toast({
         title: "Export Successful",
         description: `${orders.length} orders exported to CSV`,
@@ -60,13 +65,11 @@ const ExportSection = () => {
     }
   };
 
-
-
   const handleExportAll = async () => {
     setIsExporting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay for UX
-      exportDashboardData(customers, orders, []);
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay for UX
+      exportDashboardData(customers, orders);
       toast({
         title: "Full Export Successful",
         description: `All data exported to CSV (${customers.length} customers, ${orders.length} orders)`,
@@ -85,12 +88,12 @@ const ExportSection = () => {
   const getDataStatus = () => {
     const totalItems = customers.length + orders.length;
     const hasData = totalItems > 0;
-    
+
     return {
       hasData,
       totalItems,
       customersCount: customers.length,
-      ordersCount: orders.length
+      ordersCount: orders.length,
     };
   };
 
@@ -108,11 +111,15 @@ const ExportSection = () => {
         {/* Data Status Overview */}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="text-center p-2 bg-blue-50 rounded-lg">
-            <div className="text-lg font-semibold text-blue-600">{dataStatus.customersCount}</div>
+            <div className="text-lg font-semibold text-blue-600">
+              {dataStatus.customersCount}
+            </div>
             <div className="text-xs text-gray-600">Customers</div>
           </div>
           <div className="text-center p-2 bg-green-50 rounded-lg">
-            <div className="text-lg font-semibold text-green-600">{dataStatus.ordersCount}</div>
+            <div className="text-lg font-semibold text-green-600">
+              {dataStatus.ordersCount}
+            </div>
             <div className="text-xs text-gray-600">Orders</div>
           </div>
         </div>
@@ -121,37 +128,37 @@ const ExportSection = () => {
         <div className="space-y-3">
           {/* Individual Export Buttons */}
           <div className="grid grid-cols-1 gap-2">
-            <Button 
+            <Button
               onClick={handleExportCustomers}
-              variant="outline" 
+              variant="outline"
               className="justify-start"
               disabled={customers.length === 0}
             >
               <Users className="h-4 w-4 mr-2" />
               Export Customers ({customers.length})
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={handleExportOrders}
-              variant="outline" 
+              variant="outline"
               className="justify-start"
               disabled={orders.length === 0}
             >
               <ClipboardList className="h-4 w-4 mr-2" />
               Export Orders ({orders.length})
             </Button>
-            
-
           </div>
 
           {/* Full Export Button */}
-          <Button 
+          <Button
             onClick={handleExportAll}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
             disabled={!dataStatus.hasData || isExporting}
           >
             <Download className="h-4 w-4 mr-2" />
-            {isExporting ? 'Exporting...' : `Export All Data (${dataStatus.totalItems} items)`}
+            {isExporting
+              ? "Exporting..."
+              : `Export All Data (${dataStatus.totalItems} items)`}
           </Button>
         </div>
 
@@ -181,4 +188,4 @@ const ExportSection = () => {
   );
 };
 
-export default ExportSection; 
+export default ExportSection;

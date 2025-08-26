@@ -1,122 +1,13 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-// Types
-export interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  email?: string;
-  location: string;
-  lastVisit: string;
-  totalOrders: number;
-  status: 'active' | 'inactive' | 'vip';
-  profilePicture?: string;
-  prescription?: {
-    leftEye: string;
-    rightEye: string;
-    pd: string;
-    notes?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Order {
-  id: string;
-  orderId: string;
-  customerId: string;
-  customerName: string;
-  customerPhone: string;
-  status: 'pending' | 'confirmed' | 'in-lab' | 'ready' | 'delivered' | 'cancelled';
-  orderDate: string;
-  expectedDelivery: string;
-  frameDetails: string;
-  lensType: string;
-  totalAmount: number;
-  advancePaid: number;
-  balanceDue: number;
-  prescription?: {
-    leftEye: string;
-    rightEye: string;
-    pd: string;
-    notes?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface InventoryItem {
-  id: string;
-  itemCode: string;
-  brand: string;
-  model: string;
-  category: 'frame' | 'lens' | 'accessory';
-  type: string;
-  color?: string;
-  size?: string;
-  costPrice: number;
-  sellingPrice: number;
-  currentStock: number;
-  reorderLevel: number;
-  supplier: string;
-  lastRestocked: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface AppState {
-  // State
-  customers: Customer[];
-  orders: Order[];
-  inventory: InventoryItem[];
-  searchQuery: string;
-  currentFilter: string;
-  isLoading: boolean;
-  
-  // Actions
-  // Customer actions
-  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateCustomer: (id: string, updates: Partial<Customer>) => void;
-  deleteCustomer: (id: string) => void;
-  getCustomer: (id: string) => Customer | undefined;
-  searchCustomers: (query: string) => Customer[];
-  
-  // Order actions
-  addOrder: (order: Omit<Order, 'id' | 'orderId' | 'createdAt' | 'updatedAt'>) => void;
-  updateOrder: (id: string, updates: Partial<Order>) => void;
-  deleteOrder: (id: string) => void;
-  getOrder: (id: string) => Order | undefined;
-  getOrdersByStatus: (status: Order['status']) => Order[];
-  searchOrders: (query: string) => Order[];
-  
-  // Inventory actions
-  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateInventoryItem: (id: string, updates: Partial<InventoryItem>) => void;
-  deleteInventoryItem: (id: string) => void;
-  getInventoryItem: (id: string) => InventoryItem | undefined;
-  searchInventory: (query: string) => InventoryItem[];
-  updateStock: (id: string, quantity: number) => void;
-  
-  // App actions
-  setSearchQuery: (query: string) => void;
-  setCurrentFilter: (filter: string) => void;
-  setLoading: (loading: boolean) => void;
-  
-  // Analytics
-  getAnalytics: () => {
-    totalCustomers: number;
-    totalOrders: number;
-    totalRevenue: number;
-    pendingOrders: number;
-    lowStockItems: number;
-    topProducts: Array<{ name: string; sales: number; percentage: number }>;
-  };
-}
+import { AppState, Customer, InventoryItem, Order } from "@/types/types";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 // Helper functions
-const generateId = () => Math.random().toString(36).substr(2, 9);
-const generateOrderId = () => `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+// const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateId = () => crypto.randomUUID();
+
+const generateOrderId = () =>
+  `ORD-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
 const getCurrentTimestamp = () => new Date().toISOString();
 
 export const useAppStore = create<AppState>()(
@@ -126,8 +17,8 @@ export const useAppStore = create<AppState>()(
       customers: [],
       orders: [],
       inventory: [],
-      searchQuery: '',
-      currentFilter: '',
+      searchQuery: "",
+      currentFilter: "",
       isLoading: false,
 
       // Customer actions
@@ -166,13 +57,14 @@ export const useAppStore = create<AppState>()(
       searchCustomers: (query) => {
         const customers = get().customers;
         if (!query) return customers;
-        
+
         const lowerQuery = query.toLowerCase();
-        return customers.filter((customer) =>
-          customer.name.toLowerCase().includes(lowerQuery) ||
-          customer.phone.includes(query) ||
-          customer.email?.toLowerCase().includes(lowerQuery) ||
-          customer.location.toLowerCase().includes(lowerQuery)
+        return customers.filter(
+          (customer) =>
+            customer.name.toLowerCase().includes(lowerQuery) ||
+            customer.phone.includes(query) ||
+            customer.email?.toLowerCase().includes(lowerQuery) ||
+            customer.location.toLowerCase().includes(lowerQuery)
         );
       },
 
@@ -217,13 +109,14 @@ export const useAppStore = create<AppState>()(
       searchOrders: (query) => {
         const orders = get().orders;
         if (!query) return orders;
-        
+
         const lowerQuery = query.toLowerCase();
-        return orders.filter((order) =>
-          order.orderId.toLowerCase().includes(lowerQuery) ||
-          order.customerName.toLowerCase().includes(lowerQuery) ||
-          order.customerPhone.includes(query) ||
-          order.frameDetails.toLowerCase().includes(lowerQuery)
+        return orders.filter(
+          (order) =>
+            order.orderId.toLowerCase().includes(lowerQuery) ||
+            order.customerName.toLowerCase().includes(lowerQuery) ||
+            order.customerPhone.includes(query) ||
+            order.frameDetails.toLowerCase().includes(lowerQuery)
         );
       },
 
@@ -263,13 +156,14 @@ export const useAppStore = create<AppState>()(
       searchInventory: (query) => {
         const inventory = get().inventory;
         if (!query) return inventory;
-        
+
         const lowerQuery = query.toLowerCase();
-        return inventory.filter((item) =>
-          item.itemCode.toLowerCase().includes(lowerQuery) ||
-          item.brand.toLowerCase().includes(lowerQuery) ||
-          item.model.toLowerCase().includes(lowerQuery) ||
-          item.category.toLowerCase().includes(lowerQuery)
+        return inventory.filter(
+          (item) =>
+            item.itemCode.toLowerCase().includes(lowerQuery) ||
+            item.brand.toLowerCase().includes(lowerQuery) ||
+            item.model.toLowerCase().includes(lowerQuery) ||
+            item.category.toLowerCase().includes(lowerQuery)
         );
       },
 
@@ -277,7 +171,11 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           inventory: state.inventory.map((item) =>
             item.id === id
-              ? { ...item, currentStock: item.currentStock + quantity, updatedAt: getCurrentTimestamp() }
+              ? {
+                  ...item,
+                  currentStock: item.currentStock + quantity,
+                  updatedAt: getCurrentTimestamp(),
+                }
               : item
           ),
         }));
@@ -294,20 +192,23 @@ export const useAppStore = create<AppState>()(
         const totalCustomers = state.customers.length;
         const totalOrders = state.orders.length;
         const totalRevenue = state.orders
-          .filter((order) => order.status === 'delivered')
+          .filter((order) => order.status === "delivered")
           .reduce((sum, order) => sum + order.totalAmount, 0);
-        const pendingOrders = state.orders.filter((order) => 
-          ['pending', 'confirmed', 'in-lab'].includes(order.status)
+        const pendingOrders = state.orders.filter((order) =>
+          ["pending", "confirmed", "in-lab"].includes(order.status)
         ).length;
-        const lowStockItems = state.inventory.filter((item) => 
-          item.currentStock <= item.reorderLevel
+        const lowStockItems = state.inventory.filter(
+          (item) => item.currentStock <= item.reorderLevel
         ).length;
 
         // Calculate top products
         const productSales = new Map<string, number>();
         state.orders.forEach((order) => {
           const key = `${order.frameDetails} - ${order.lensType}`;
-          productSales.set(key, (productSales.get(key) || 0) + order.totalAmount);
+          productSales.set(
+            key,
+            (productSales.get(key) || 0) + order.totalAmount
+          );
         });
 
         const topProducts = Array.from(productSales.entries())
@@ -316,9 +217,13 @@ export const useAppStore = create<AppState>()(
           .slice(0, 5);
 
         // Calculate percentages
-        const totalSales = topProducts.reduce((sum, product) => sum + product.sales, 0);
+        const totalSales = topProducts.reduce(
+          (sum, product) => sum + product.sales,
+          0
+        );
         topProducts.forEach((product) => {
-          product.percentage = totalSales > 0 ? Math.round((product.sales / totalSales) * 100) : 0;
+          product.percentage =
+            totalSales > 0 ? Math.round((product.sales / totalSales) * 100) : 0;
         });
 
         return {
@@ -332,7 +237,7 @@ export const useAppStore = create<AppState>()(
       },
     }),
     {
-      name: 'optical-store-storage',
+      name: "optical-store-storage",
       partialize: (state) => ({
         customers: state.customers,
         orders: state.orders,
@@ -340,4 +245,4 @@ export const useAppStore = create<AppState>()(
       }),
     }
   )
-); 
+);

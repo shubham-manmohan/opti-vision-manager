@@ -8,47 +8,53 @@ const QuickActions = () => {
 
   const actions = [
     {
-      id: 'new-customer',
-      label: 'New Customer',
+      id: "new-customer",
+      label: "New Customer",
       icon: UserPlus,
-      color: 'primary',
-      path: '/customers'
+      color: "primary",
+      path: "/customers",
     },
     {
-      id: 'new-order',
-      label: 'New Order',
+      id: "new-order",
+      label: "New Order",
       icon: Plus,
-      color: 'accent',
-      path: '/orders'
+      color: "accent",
+      path: "/orders",
     },
     {
-      id: 'search-customer',
-      label: 'Find Customer',
+      id: "search-customer",
+      label: "Find Customer",
       icon: Search,
-      color: 'warning',
-      path: '/customers'
+      color: "warning",
+      path: "/customers",
     },
     {
-      id: 'pending-orders',
-      label: 'Pending Orders',
+      id: "pending-orders",
+      label: "Pending Orders",
       icon: ClipboardList,
-      color: 'success',
-      path: '/orders'
-    }
+      color: "success",
+      path: "/orders",
+    },
   ];
 
   const getButtonVariant = (color: string) => {
     switch (color) {
-      case 'accent': return 'default';
-      case 'warning': return 'secondary';
-      case 'success': return 'outline';
-      default: return 'default';
+      case "accent":
+        return "default";
+      case "warning":
+        return "secondary";
+      case "success":
+        return "outline";
+      default:
+        return "default";
     }
   };
 
   return (
     <Card className="card-professional p-4">
-      <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
+      <h3 className="text-lg font-semibold text-foreground mb-4">
+        Quick Actions
+      </h3>
       <div className="grid grid-cols-2 gap-3">
         {actions.map((action) => {
           const Icon = action.icon;
