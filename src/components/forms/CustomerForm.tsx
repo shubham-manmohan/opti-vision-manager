@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppStore } from "@/lib/store";
 import { X, Save, UserPlus } from "lucide-react";
 import { Customer } from "@/types/types";
+import { addCustomerApi } from "@/lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface CustomerFormProps {
   customer?: Customer;
@@ -29,6 +31,7 @@ export const CustomerForm = ({
 }: CustomerFormProps) => {
   const { toast } = useToast();
   const { addCustomer, updateCustomer } = useAppStore();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
     name: customer?.name || "",
@@ -45,10 +48,29 @@ export const CustomerForm = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // ✅ React Query mutation for adding customer
+  const { mutate, isPending } = useMutation({
+    mutationFn: addCustomerApi,
+    onSuccess: (newCustomer) => {
+      addCustomer(newCustomer); // sync Zustand
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      toast({
+        title: "Customer Added",
+        description: "New customer has been added successfully.",
+      });
+      onSave();
+    },
+    onError: (err) => {
+      toast({
+        title: "Error",
+        description: err.message || "Failed to add customer. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -62,37 +84,25 @@ export const CustomerForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
-    try {
-      const customerData = {
-        ...formData,
-        lastVisit: customer?.lastVisit || new Date().toISOString(),
-        totalOrders: customer?.totalOrders || 0,
-      };
+    const customerData = {
+      ...formData,
+      lastVisit: customer?.lastVisit || new Date().toISOString(),
+      totalOrders: customer?.totalOrders || 0,
+    };
 
-      if (customer) {
-        updateCustomer(customer.id, customerData);
-        toast({
-          title: "Customer Updated",
-          description: "Customer information has been updated successfully.",
-        });
-      } else {
-        addCustomer(customerData);
-        toast({
-          title: "Customer Added",
-          description: "New customer has been added successfully.",
-        });
-      }
-
-      onSave();
-    } catch (error) {
+    if (customer) {
+      // local update for now
+      updateCustomer(customer.id, customerData);
       toast({
-        title: "Error",
-        description: "Failed to save customer. Please try again.",
-        variant: "destructive",
+        title: "Customer Updated",
+        description: "Customer information has been updated successfully.",
       });
+      onSave();
+    } else {
+      // call backend
+      mutate(customerData);
     }
   };
 
@@ -276,7 +286,11 @@ export const CustomerForm = ({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" className="gradient-primary">
+              <Button
+                type="submit"
+                className="gradient-primary"
+                disabled={isPending}
+              >
                 {customer ? (
                   <>
                     <Save className="mr-2 h-4 w-4" />
@@ -285,7 +299,7 @@ export const CustomerForm = ({
                 ) : (
                   <>
                     <UserPlus className="mr-2 h-4 w-4" />
-                    Add Customer
+                    {isPending ? "Saving..." : "Add Customer"}
                   </>
                 )}
               </Button>
